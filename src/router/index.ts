@@ -17,6 +17,11 @@ const router = createRouter({
       component: AdjustGameLevel,
     },
     {
+      path: '/adjust-game-level/:id',
+      name: 'edit-game-level',
+      component: AdjustGameLevel,
+    },
+    {
       path: '/demo',
       name: 'demo',
       component: Demo,

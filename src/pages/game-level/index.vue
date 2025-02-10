@@ -8,17 +8,8 @@
     <LevelTable :items="levels">
       <template #actions="{ item }">
         <div class="actions-wrapper">
-          <BaseButton 
-            size="sm" 
-            @click="handleEdit(item)"
-          >
-            Edit
-          </BaseButton>
-          <BaseButton 
-            variant="secondary" 
-            size="sm"
-            @click="handleDelete(item)"
-          >
+          <BaseButton size="sm" @click="handleEdit(item)"> Edit </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="() => openDeleteModal(item)">
             Delete
           </BaseButton>
         </div>
@@ -30,40 +21,71 @@
         </div>
       </template>
     </LevelTable>
+
+    <!-- Delete Confirmation Modal -->
+    <BaseModal v-model="showDeleteModal" title="Confirm Delete">
+      <div class="delete-confirmation">
+        <p>Are you sure you want to delete "{{ levelToDelete?.name }}"?</p>
+        <p class="delete-warning">This action cannot be undone.</p>
+      </div>
+      <template #footer>
+        <BaseButton variant="secondary" @click="showDeleteModal = false">
+          Cancel
+        </BaseButton>
+        <BaseButton @click="confirmDelete"> Delete </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useGameLevelStore } from '@/stores/gameLevelStore'
 import LevelTable, { type TableItem } from './components/LevelTable.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import BaseModal from '@/components/BaseModal.vue'
 
 defineOptions({
   name: 'GameLevelPage'
 })
 
 const router = useRouter()
+const gameLevelStore = useGameLevelStore()
+const { levels } = gameLevelStore
 
-// Mock data - replace with actual API calls
-const levels = ref<TableItem[]>([
-  { id: 1, name: 'Tutorial Level' },
-  { id: 2, name: 'Level 1: The Beginning' },
-  { id: 3, name: 'Level 2: The Challenge' }
-])
+// Delete modal state
+const showDeleteModal = ref(false)
+const levelToDelete = ref<TableItem | null>(null)
+
+onMounted(async () => {
+  await gameLevelStore.fetchLevels()
+})
 
 const handleAddNew = () => {
-  router.push('/adjust-game-level')
+  router.push({ name: 'adjust-game-level' })
 }
 
 const handleEdit = (item: TableItem) => {
-  router.push(`/adjust-game-level/${item.id}`)
+  router.push({
+    name: 'edit-game-level',
+    params: { id: item.id.toString() }
+  })
 }
 
-const handleDelete = (item: TableItem) => {
-  // Implement delete logic
-  if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
-    levels.value = levels.value.filter(level => level.id !== item.id)
+const openDeleteModal = (item: TableItem) => {
+  levelToDelete.value = item
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (levelToDelete.value) {
+    const success = await gameLevelStore.deleteLevel(levelToDelete.value.id)
+    if (success) {
+      await gameLevelStore.fetchLevels()
+      showDeleteModal.value = false
+      levelToDelete.value = null
+    }
   }
 }
 </script>
@@ -109,6 +131,17 @@ h1 {
   margin-bottom: 1rem;
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.delete-confirmation {
+  text-align: center;
+  padding: 1rem;
+}
+
+.delete-warning {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 768px) {

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { GameLevelAPI } from '@/Api/GameLevelAPI'
 
 export interface Block {
   id: number
@@ -13,95 +13,53 @@ export interface GameLevel {
   blocks: Block[]
 }
 
-export const useGameLevelStore = defineStore('gameLevel', () => {
-  const levels = ref<GameLevel[]>([])
-  const currentLevel = ref<GameLevel | null>(null)
+export const useGameLevelStore = defineStore('gameLevel', {
+  state: () => ({
+    levels: [] as GameLevel[],
+    currentLevel: null as GameLevel | null
+  }),
 
-  // Mock API functions
-  const fetchLevels = async () => {
-    // Simulating API call delay
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return levels.value
-  }
+  actions: {
+    async fetchLevels() {
+      this.levels = await GameLevelAPI.fetchLevels()
+    },
 
-  const fetchLevelById = async (id: number) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    return levels.value.find(level => level.id === id) || null
-  }
+    async loadLevel(id: number) {
+      const level = await GameLevelAPI.fetchLevelById(id)
+      if (level) {
+        this.currentLevel = level
+      }
+      return level
+    },
 
-  const createLevel = async (name: string) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const newLevel: GameLevel = {
-      id: Date.now(),
-      name,
-      blocks: []
+    async createLevel(name: string, blocks: Block[]) {
+      const newLevel = await GameLevelAPI.createLevel({ name, blocks })
+      return newLevel
+    },
+
+    async updateLevel(id: number, data: Partial<GameLevel>) {
+      const updatedLevel = await GameLevelAPI.updateLevel(id, data)
+      if (updatedLevel) {
+        const index = this.levels.findIndex(level => level.id === id)
+        if (index !== -1) {
+          this.levels[index] = updatedLevel
+        }
+        if (this.currentLevel?.id === id) {
+          this.currentLevel = updatedLevel
+        }
+      }
+      return updatedLevel
+    },
+
+    async deleteLevel(id: number) {
+      const success = await GameLevelAPI.deleteLevel(id)
+      if (success) {
+        this.levels = this.levels.filter(level => level.id !== id)
+        if (this.currentLevel?.id === id) {
+          this.currentLevel = null
+        }
+      }
+      return success
     }
-    levels.value.push(newLevel)
-    return newLevel
-  }
-
-  const updateLevel = async (id: number, data: Partial<GameLevel>) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const index = levels.value.findIndex(level => level.id === id)
-    if (index !== -1) {
-      levels.value[index] = { ...levels.value[index], ...data }
-      return levels.value[index]
-    }
-    return null
-  }
-
-  const deleteLevel = async (id: number) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const index = levels.value.findIndex(level => level.id === id)
-    if (index !== -1) {
-      levels.value.splice(index, 1)
-      return true
-    }
-    return false
-  }
-
-  // Block management functions
-  const addBlock = async (levelId: number, x: number, y: number) => {
-    const level = levels.value.find(l => l.id === levelId)
-    if (!level) return null
-
-    const newBlock: Block = {
-      id: Date.now(),
-      x,
-      y
-    }
-
-    level.blocks.push(newBlock)
-    return newBlock
-  }
-
-  const removeBlock = async (levelId: number, blockId: number) => {
-    const level = levels.value.find(l => l.id === levelId)
-    if (!level) return false
-
-    const blockIndex = level.blocks.findIndex(b => b.id === blockId)
-    if (blockIndex !== -1) {
-      level.blocks.splice(blockIndex, 1)
-      return true
-    }
-    return false
-  }
-
-  const loadLevel = async (id: number) => {
-    currentLevel.value = await fetchLevelById(id)
-    return currentLevel.value
-  }
-
-  return {
-    levels,
-    currentLevel,
-    fetchLevels,
-    fetchLevelById,
-    createLevel,
-    updateLevel,
-    deleteLevel,
-    addBlock,
-    removeBlock,
-    loadLevel
   }
 })

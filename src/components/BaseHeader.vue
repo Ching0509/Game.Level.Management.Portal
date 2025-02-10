@@ -52,13 +52,16 @@ defineOptions({
   name: "BaseHeader",
 });
 
-const isMenuOpen = ref(false);
+interface NavLink {
+  name: string;
+  path: string;
+}
 
-const navigationLinks = [
-  { name: "Demo", path: "/demo" },
-  { name: "Game Level", path: "/game-level" },
-  { name: "Adjust Level", path: "/adjust-game-level" },
-];
+defineProps<{
+  navigationLinks: NavLink[];
+}>();
+
+const isMenuOpen = ref(false);
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;

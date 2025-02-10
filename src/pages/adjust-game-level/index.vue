@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="page-header">
-      <h1>{{ isEditing ? 'Edit Level' : 'Create New Level' }}</h1>
+      <h1>{{ isEditing ? "Edit Level" : "Create New Level" }}</h1>
     </div>
 
     <div class="form-container">
@@ -18,8 +18,10 @@
 
       <div class="block-section">
         <h2>Place Blocks</h2>
-        <p class="block-instructions">Click on any cell to add a block, click on a block to remove it.</p>
-        
+        <p class="block-instructions">
+          Click on any cell to add a block, click on a block to remove it.
+        </p>
+
         <BlockSelector
           :blocks="currentBlocks"
           @add-block="handleAddBlock"
@@ -28,14 +30,9 @@
       </div>
 
       <div class="form-actions">
-        <BaseButton variant="secondary" @click="handleCancel">
-          Cancel
-        </BaseButton>
-        <BaseButton 
-          :disabled="!isValid"
-          @click="handleSave"
-        >
-          {{ isEditing ? 'Save Changes' : 'Create Level' }}
+        <BaseButton variant="secondary" @click="handleCancel"> Cancel </BaseButton>
+        <BaseButton :disabled="!isValid" @click="handleSave">
+          {{ isEditing ? "Save Changes" : "Create Level" }}
         </BaseButton>
       </div>
     </div>
@@ -43,101 +40,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useGameLevelStore } from '@/stores/gameLevelStore'
-import type { Block } from '@/stores/gameLevelStore'
-import BlockSelector from '@/components/BlockSelector.vue'
-import BaseInput from '@/components/BaseInput.vue'
-import BaseButton from '@/components/BaseButton.vue'
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useGameLevelStore } from "@/stores/gameLevelStore";
+import type { Block } from "@/stores/gameLevelStore";
+import BlockSelector from "@/components/BlockSelector.vue";
+import BaseInput from "@/components/BaseInput.vue";
+import BaseButton from "@/components/BaseButton.vue";
 
 defineOptions({
-  name: 'AdjustGameLevelPage'
-})
+  name: "AdjustGameLevelPage",
+});
 
-const route = useRoute()
-const router = useRouter()
-const gameLevelStore = useGameLevelStore()
+const route = useRoute();
+const router = useRouter();
+const gameLevelStore = useGameLevelStore();
 
 const levelId = computed(() => {
-  const id = route.params.id
-  return id ? parseInt(id as string) : null
-})
+  const id = route.params.id;
+  return id ? parseInt(id as string) : null;
+});
 
-const isEditing = computed(() => levelId.value !== null)
+const isEditing = computed(() => levelId.value !== null);
 
-const levelName = ref('')
-const currentBlocks = ref<Block[]>([])
-const nameError = ref('')
+const levelName = ref("");
+const currentBlocks = ref<Block[]>([]);
+const nameError = ref("");
 
 const isValid = computed(() => {
-  return levelName.value.trim().length > 0
-})
+  return levelName.value.trim().length > 0;
+});
 
 onMounted(async () => {
   if (levelId.value) {
-    const level = await gameLevelStore.loadLevel(levelId.value)
-    if (level) {
-      levelName.value = level.name
-      currentBlocks.value = [...level.blocks]
-    } else {
-      router.push('/game-level')
+    try {
+      const level = await gameLevelStore.loadLevel(levelId.value);
+      if (level) {
+        levelName.value = level.name;
+        currentBlocks.value = [...level.blocks];
+      } else {
+        nameError.value = "Level not found";
+        router.push({ name: "game-level" });
+      }
+    } catch (error) {
+      console.error("Failed to load level:", error);
+      nameError.value = "Failed to load level";
+      router.push({ name: "game-level" });
     }
   }
-})
+});
 
-const handleAddBlock = async (x: number, y: number) => {
-  if (levelId.value) {
-    const block = await gameLevelStore.addBlock(levelId.value, x, y)
-    if (block) {
-      currentBlocks.value.push(block)
-    }
-  } else {
-    currentBlocks.value.push({
-      id: Date.now(),
-      x,
-      y
-    })
-  }
-}
+const handleAddBlock = (x: number, y: number) => {
+  currentBlocks.value.push({
+    id: Date.now(),
+    x,
+    y,
+  });
+};
 
-const handleRemoveBlock = async (blockId: number) => {
-  if (levelId.value) {
-    const success = await gameLevelStore.removeBlock(levelId.value, blockId)
-    if (success) {
-      currentBlocks.value = currentBlocks.value.filter(b => b.id !== blockId)
-    }
-  } else {
-    currentBlocks.value = currentBlocks.value.filter(b => b.id !== blockId)
-  }
-}
+const handleRemoveBlock = (blockId: number) => {
+  currentBlocks.value = currentBlocks.value.filter((b) => b.id !== blockId);
+};
 
 const handleSave = async () => {
-  if (!isValid.value) return
+  if (!isValid.value) return;
 
   try {
     if (isEditing.value && levelId.value) {
-      await gameLevelStore.updateLevel(levelId.value, {
+      const updated = await gameLevelStore.updateLevel(levelId.value, {
         name: levelName.value,
-        blocks: currentBlocks.value
-      })
-    } else {
-      const newLevel = await gameLevelStore.createLevel(levelName.value)
-      if (newLevel) {
-        for (const block of currentBlocks.value) {
-          await gameLevelStore.addBlock(newLevel.id, block.x, block.y)
-        }
+        blocks: currentBlocks.value,
+      });
+      if (!updated) {
+        nameError.value = "Failed to update level";
+        return;
       }
+    } else {
+      await gameLevelStore.createLevel(levelName.value, currentBlocks.value);
     }
-    router.push('/game-level')
+    router.push({ name: "game-level" });
   } catch (error) {
-    console.error('Failed to save level:', error)
+    console.error("Failed to save level:", error);
+    nameError.value = "Failed to save level";
   }
-}
+};
 
 const handleCancel = () => {
-  router.push('/game-level')
-}
+  router.push({ name: "game-level" });
+};
 </script>
 
 <style scoped>

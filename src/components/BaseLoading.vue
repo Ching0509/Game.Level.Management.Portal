@@ -1,31 +1,37 @@
 <template>
-  <div v-if="fullscreen" class="loading-overlay">
-    <div class="loading-container">
+  <div v-if="loadingStore.isLoading">
+    <div v-if="fullscreen" class="loading-overlay">
+      <div class="loading-container">
+        <div class="spinner-border text-neon" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="loading-text">Loading...</div>
+      </div>
+    </div>
+    <div v-else class="loading-container">
       <div class="spinner-border text-neon" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <div class="loading-text">Loading...</div>
     </div>
   </div>
-  <div v-else class="loading-container">
-    <div class="spinner-border text-neon" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <div class="loading-text">Loading...</div>
-  </div>
 </template>
 
 <script setup lang="ts">
+import { useLoadingStore } from "@/stores/loadingStore";
+
 defineOptions({
-  name: "BaseLoading"
+  name: "BaseLoading",
 });
 
 defineProps({
   fullscreen: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
+
+const loadingStore = useLoadingStore();
 </script>
 
 <style scoped>
@@ -64,7 +70,7 @@ defineProps({
 .text-neon {
   color: var(--primary-color);
   filter: drop-shadow(0 0 10px var(--primary-color))
-         drop-shadow(0 0 20px var(--primary-color));
+    drop-shadow(0 0 20px var(--primary-color));
 }
 
 .loading-text {
@@ -85,8 +91,7 @@ defineProps({
   0%,
   100% {
     opacity: 1;
-    text-shadow: 0 0 10px var(--secondary-color), 
-                 0 0 20px var(--secondary-color);
+    text-shadow: 0 0 10px var(--secondary-color), 0 0 20px var(--secondary-color);
   }
   50% {
     opacity: 0.5;

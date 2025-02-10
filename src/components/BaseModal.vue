@@ -3,7 +3,7 @@
     <Transition name="modal">
       <div v-if="model" class="modal-wrapper">
         <div class="modal-backdrop" @click="model = false"></div>
-        <div class="modal-container">
+        <div :class="['modal-container', $attrs.class]">
           <div class="modal-header">
             <h3 class="modal-title">{{ title }}</h3>
             <button class="close-button" @click="model = false">×</button>
@@ -22,7 +22,8 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'BaseModal'
+  name: 'BaseModal',
+  inheritAttrs: false
 })
 
 const model = defineModel<boolean>({ required: true })

@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
-    <BaseHeader />
+    <BaseHeader :navigation-links="navigationLinks" />
     <main class="main-content">
       <ErrorPopup />
-      <BaseLoading v-if="loadingStore.isLoading" fullscreen />
+      <BaseLoading fullscreen />
       <RouterView />
     </main>
   </div>
@@ -14,10 +14,13 @@ import { RouterView, useRouter } from "vue-router";
 import ErrorPopup from "./components/ErrorPopup.vue";
 import BaseLoading from "./components/BaseLoading.vue";
 import BaseHeader from "./components/BaseHeader.vue";
-import { useLoadingStore } from "./stores/loadingStore";
 
 const router = useRouter();
-const loadingStore = useLoadingStore();
+
+const navigationLinks = [
+  { name: "Demo", path: "/demo" },
+  { name: "Game Level", path: "/game-level" },
+];
 
 router.push("/demo");
 </script>
@@ -25,7 +28,7 @@ router.push("/demo");
 <style>
 /* All styles moved to main.css */
 .main-content {
-  min-height: calc(100vh - 4rem); /* Adjust based on header height */
+  min-height: calc(100dvh - 4rem); /* Adjust based on header height */
   padding-top: 1rem;
 }
 </style>
