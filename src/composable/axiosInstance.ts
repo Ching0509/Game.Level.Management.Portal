@@ -50,7 +50,7 @@ export function useAxios() {
     }
   }
 
-  const post = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+  const post = async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
     try {
       const response = await axiosInstance.post<T>(url, data, config)
       return response.data
@@ -59,7 +59,7 @@ export function useAxios() {
     }
   }
 
-  const put = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+  const put = async <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
     try {
       const response = await axiosInstance.put<T>(url, data, config)
       return response.data
