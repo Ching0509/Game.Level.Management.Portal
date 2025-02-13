@@ -92,7 +92,6 @@ onMounted(async () => {
 
 const handleAddBlock = (x: number, y: number) => {
   currentBlocks.value.push({
-    id: Date.now(),
     x,
     y,
   });

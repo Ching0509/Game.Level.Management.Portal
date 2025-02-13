@@ -5,7 +5,7 @@
       <BaseButton @click="handleAddNew">Add New Level</BaseButton>
     </div>
 
-    <LevelTable :items="levels">
+    <LevelTable :items="levels" :key="levels.length">
       <template #actions="{ item }">
         <div class="actions-wrapper">
           <BaseButton size="sm" @click="handleEdit(item)"> Edit </BaseButton>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameLevelStore } from '@/stores/gameLevelStore'
 import LevelTable, { type TableItem } from './components/LevelTable.vue'
@@ -52,7 +52,7 @@ defineOptions({
 
 const router = useRouter()
 const gameLevelStore = useGameLevelStore()
-const { levels } = gameLevelStore
+const levels = computed(() => gameLevelStore.levels)
 
 // Delete modal state
 const showDeleteModal = ref(false)
