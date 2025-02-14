@@ -30,7 +30,7 @@
     </div>
 
     <!-- Mobile menu -->
-    <div class="mobile-menu" :class="{ 'is-open': isMenuOpen }">
+    <div v-if="isMenuOpen" class="mobile-menu" :class="{ 'is-open': isMenuOpen }">
       <router-link
         v-for="link in navigationLinks"
         :key="link.path"
