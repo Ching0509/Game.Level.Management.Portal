@@ -7,7 +7,7 @@
     "dev": "vite --mode dev",
     "build:dev": "rm -rf dist && vite build --mode dev",
     "build:prod": "rm -rf dist && vite build --mode prod",
-    "deploy": "npm run build:prod && gh-pages -d dist",
+    "deploy": "npm run build:prod && cp dist/index.html dist/404.html && gh-pages -d dist",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",

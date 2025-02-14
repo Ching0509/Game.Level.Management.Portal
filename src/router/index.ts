@@ -7,6 +7,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      redirect: '/game-level'
+    },
+    {
       path: '/game-level',
       name: 'game-level',
       component: GameLevel,
