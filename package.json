@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "deploy": "gh-pages -d dist",
+    "dev": "vite --mode dev",
+    "build dev": "rm -rf dist && vite build --mode dev",
+    "build prod": "rm -rf dist && vite build --mode prod",
+    "deploy": "npm run build:prod && gh-pages -d dist",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",

@@ -22,7 +22,7 @@ const navigationLinks = [
   { name: "Game Level", path: "/game-level" },
 ];
 
-router.push("/demo");
+router.push("/game-level");
 </script>
 
 <style>
