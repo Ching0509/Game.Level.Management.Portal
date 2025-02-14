@@ -6,7 +6,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/game-level-management-portal/",
+  base: process.env.NODE_ENV === 'prod' 
+    ? "/Game.Level.Management.Portal/"
+    : "/",
   plugins: [
     vue(),
     vueDevTools(),
