@@ -1,22 +1,31 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import GameLevel from '../pages/game-level/index.vue'
+import AdjustGameLevel from '../pages/adjust-game-level/index.vue'
+import Demo from '../pages/demo/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView,
+      path: '/game-level',
+      name: 'game-level',
+      component: GameLevel,
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/adjust-game-level',
+      name: 'adjust-game-level', 
+      component: AdjustGameLevel,
     },
+    {
+      path: '/adjust-game-level/:id',
+      name: 'edit-game-level',
+      component: AdjustGameLevel,
+    },
+    {
+      path: '/demo',
+      name: 'demo',
+      component: Demo,
+    }
   ],
 })
 

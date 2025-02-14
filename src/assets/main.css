@@ -1,3 +1,47 @@
+/* Global synthwave styles */
+:root {
+    --primary-color: #ff00ff;
+    --secondary-color: #00ffff;
+    --background-dark: #1a1a2e;
+    --text-color: #ffffff;
+    --container-padding: 2.5rem;
+    --font-size-base: 16px;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-dark);
+    color: var(--text-color);
+}
+
+.app-container {
+    min-height: 100vh;
+    background: linear-gradient(45deg, #1a1a2e, #16213e);
+    color: #fff;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
 @media screen and (max-width: 767px) {
 
     /* Mobile styles */
@@ -31,11 +75,6 @@
 
 /* Desktop */
 @media screen and (min-width: 1024px) {
-    :root {
-        --container-padding: 2.5rem;
-        --font-size-base: 16px;
-    }
-
     .container {
         max-width: 1140px;
         margin: 0 auto;
