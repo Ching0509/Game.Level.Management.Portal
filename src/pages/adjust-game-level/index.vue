@@ -11,8 +11,9 @@
           id="levelName"
           v-model="levelName"
           placeholder="Enter level name"
-          :error="nameError"
-          required
+          :lazy="true"
+          :debounceTime="500"
+          :error="nameError || v$.levelName.$errors[0]?.$message as string"
         />
       </div>
 
@@ -31,7 +32,7 @@
 
       <div class="form-actions">
         <BaseButton variant="secondary" @click="handleCancel"> Cancel </BaseButton>
-        <BaseButton :disabled="!isValid" @click="handleSave">
+        <BaseButton :disabled="v$.$invalid" @click="handleSave">
           {{ isEditing ? "Save Changes" : "Create Level" }}
         </BaseButton>
       </div>
@@ -47,6 +48,9 @@ import type { Block } from "@/stores/gameLevelStore";
 import BlockSelector from "@/components/BlockSelector.vue";
 import BaseInput from "@/components/BaseInput.vue";
 import BaseButton from "@/components/BaseButton.vue";
+import { useVuelidate } from '@vuelidate/core';
+import { required, helpers } from '@vuelidate/validators';
+import { GameLevelAPI } from '@/Api/GameLevelAPI';
 
 defineOptions({
   name: "AdjustGameLevelPage",
@@ -67,9 +71,24 @@ const levelName = ref("");
 const currentBlocks = ref<Block[]>([]);
 const nameError = ref("");
 
-const isValid = computed(() => {
-  return levelName.value.trim().length > 0;
-});
+const isNameAvailable = async (value: string) => {
+  if (!value || (isEditing.value && value === levelName.value)) return true;
+  try {
+    return await GameLevelAPI.checkNameAvailability(value);
+  } catch (error) {
+    console.error('Name availability check failed:', error);
+    return false;
+  }
+};
+
+const rules = computed(() => ({
+  levelName: {
+    required: helpers.withMessage('Level name is required', required),
+    isUnique: helpers.withMessage('Level name should be unique', helpers.withAsync(isNameAvailable))
+  }
+}));
+
+const v$ = useVuelidate(rules, { levelName }, { $autoDirty: true });
 
 onMounted(async () => {
   if (levelId.value) {
@@ -102,7 +121,8 @@ const handleRemoveBlock = (blockId: number) => {
 };
 
 const handleSave = async () => {
-  if (!isValid.value) return;
+  const isValid = v$.value.$invalid;
+  if (isValid) return;
 
   try {
     if (isEditing.value && levelId.value) {
