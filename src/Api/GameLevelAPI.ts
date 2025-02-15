@@ -30,5 +30,15 @@ export const GameLevelAPI = {
   async deleteLevel(id: number): Promise<boolean> {
     await axiosInstance.delete(`/gamelevels/${id}`)
     return true
+  },
+
+  // Check name availability
+  async checkNameAvailability(name: string, excludeId?: number): Promise<boolean> {
+    const params = new URLSearchParams({ name });
+    if (excludeId !== undefined) {
+      params.append('excludeId', excludeId.toString());
+    }
+    const response = await axiosInstance.get(`/gamelevels/check-name?${params}`);
+    return response.data.isUnique;
   }
 }

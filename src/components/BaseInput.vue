@@ -5,26 +5,25 @@
       :id="id"
       :type="type"
       class="form-control"
-      :value="model"
-      @input="model = ($event.target as HTMLInputElement).value"
+      :value="modelValue"
+      @input="handleInput"
+      @change="handleChange"
       :placeholder="placeholder"
       :disabled="disabled"
-      :required="required"
     />
     <div v-if="error" class="error-message">{{ error }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { debounce } from "lodash-es";
 import { computed } from "vue";
 
 defineOptions({
   name: "BaseInput",
 });
 
-const model = defineModel<string>();
-
-defineProps({
+const props = defineProps({
   label: {
     type: String,
     default: "",
@@ -41,17 +40,49 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  required: {
+  error: {
+    type: String,
+    default: "",
+  },
+  lazy: {
     type: Boolean,
     default: false,
   },
-  error: {
+  debounceTime: {
+    type: Number,
+    default: 300,
+  },
+  modelValue: {
     type: String,
     default: "",
   },
 });
 
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void;
+}>();
+
 const id = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`);
+
+const emitDebounced = debounce((value: string) => {
+  emit('update:modelValue', value);
+}, props.debounceTime);
+
+const handleInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  
+  if (!props.lazy) {
+    emitDebounced(value);
+  }
+};
+
+const handleChange = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value;
+  
+  if (props.lazy) {
+    emit('update:modelValue', value);
+  }
+};
 </script>
 
 <style scoped>
