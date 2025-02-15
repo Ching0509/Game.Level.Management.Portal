@@ -66,18 +66,8 @@
     <!-- Loading Component -->
     <section class="mb-5">
       <h2 class="mb-4">Loading States</h2>
-      <div class="grid">
-        <div class="col-span-4">
-          <h3 class="mb-3">Inline Loading</h3>
-          <BaseLoading />
-        </div>
-        <div class="col-span-4">
-          <h3 class="mb-3">Global Loading Overlay</h3>
-          <BaseButton @click="toggleLoading">
-            Show Global Loading (2s)
-          </BaseButton>
-        </div>
-      </div>
+      <h3 class="mb-3">Global Loading Overlay</h3>
+      <BaseButton @click="toggleLoading">Show Global Loading (2s)</BaseButton>
     </section>
 
     <!-- Modal Demo -->
@@ -111,7 +101,6 @@
 import { ref } from "vue";
 import BaseButton from "@/components/BaseButton.vue";
 import BaseInput from "@/components/BaseInput.vue";
-import BaseLoading from "@/components/BaseLoading.vue";
 import BaseModal from "@/components/BaseModal.vue";
 import { useErrorMsgStore } from "@/stores/errorMsgStore";
 import { useLoadingStore } from "@/stores/loadingStore";
